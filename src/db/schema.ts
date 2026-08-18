@@ -60,4 +60,18 @@ export const verifications = pgTable("verification", {
   updatedAt: updatedAt(),
 });
 
-export const schema = { users, sessions, accounts, verifications };
+export const workspaces = pgTable("workspaces", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+export const workspaceMembers = pgTable("workspace_members", {
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").notNull().default("editor"),
+  createdAt: createdAt(),
+}, (table) => [primaryKey({ columns: [table.workspaceId, table.userId] })]);
+
+export const schema = { users, sessions, accounts, verifications, workspaces, workspaceMembers };
