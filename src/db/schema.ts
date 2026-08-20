@@ -1,5 +1,6 @@
 import {
   boolean,
+  customType,
   integer,
   jsonb,
   pgTable,
@@ -11,6 +12,7 @@ import {
 
 const createdAt = () => timestamp("createdAt", { withTimezone: true }).notNull().defaultNow();
 const updatedAt = () => timestamp("updatedAt", { withTimezone: true }).notNull().defaultNow();
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => "bytea" });
 
 // Better Auth core tables. Keep these property and column names aligned with
 // Better Auth's Drizzle adapter schema.
@@ -74,4 +76,45 @@ export const workspaceMembers = pgTable("workspace_members", {
   createdAt: createdAt(),
 }, (table) => [primaryKey({ columns: [table.workspaceId, table.userId] })]);
 
-export const schema = { users, sessions, accounts, verifications, workspaces, workspaceMembers };
+export type ProjectDocument = {
+  pages: unknown[];
+  issues: unknown[];
+  checklist: unknown[];
+};
+
+export const projects = pgTable("projects", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  client: text("client").notNull(),
+  url: text("url").notNull(),
+  data: jsonb("data").$type<ProjectDocument>().notNull(),
+  revision: integer("revision").notNull().default(1),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
+export const invitations = pgTable("invitations", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  role: text("role").notNull().default("editor"),
+  createdBy: text("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: createdAt(),
+});
+
+export const reviewAssets = pgTable("review_assets", {
+  id: text("id").primaryKey(),
+  workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
+  projectId: text("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  pageId: text("page_id").notNull(),
+  fileName: text("file_name").notNull(),
+  content: bytea("content"),
+  contentType: text("content_type").notNull(),
+  size: integer("size").notNull(),
+  createdBy: text("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
+});
+
+export const schema = { users, sessions, accounts, verifications, workspaces, workspaceMembers, projects, invitations, reviewAssets };
