@@ -32,6 +32,15 @@ export type ReviewProject = {
 };
 
 const timestamp = "2026-11-06T10:00:00.000Z";
+
+function isWebUrl(value: string) {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 export function createDemoProject(): ReviewProject {
   return {
     id: "sprout-marketing",
@@ -65,4 +74,47 @@ export function createDemoProject(): ReviewProject {
 
 export function createId(prefix: string) {
   return `${prefix}-${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 11)}`;
+}
+
+export function validateBackup(value: unknown): ReviewProject[] {
+  if (!Array.isArray(value) || value.length === 0) throw new Error("The backup must contain at least one project.");
+  const projectIds = new Set<string>();
+
+  for (const project of value) {
+    if (!project || typeof project.id !== "string" || typeof project.name !== "string" || typeof project.client !== "string" || typeof project.url !== "string" || !isWebUrl(project.url) || typeof project.updatedAt !== "string" || !Array.isArray(project.pages) || project.pages.length === 0 || !Array.isArray(project.issues) || !Array.isArray(project.checklist)) {
+      throw new Error("This file does not look like a Pixelproof project backup.");
+    }
+
+    if (projectIds.has(project.id)) throw new Error("Project IDs must be unique in a backup.");
+    projectIds.add(project.id);
+
+    const pageIds = new Set<string>();
+    const invalidPage = project.pages.some((page: unknown) => {
+      if (!page || typeof page !== "object") return true;
+      const candidate = page as ReviewPage;
+      if (typeof candidate.id !== "string" || typeof candidate.name !== "string" || typeof candidate.path !== "string" || typeof candidate.url !== "string" || !isWebUrl(candidate.url) || typeof candidate.reviewed !== "boolean" || pageIds.has(candidate.id)) return true;
+      pageIds.add(candidate.id);
+      return false;
+    });
+    if (invalidPage) {
+      throw new Error("A project in this backup has an invalid page entry.");
+    }
+
+    const issueIds = new Set<string>();
+    const invalidIssue = project.issues.some((issue: unknown) => {
+      if (!issue || typeof issue !== "object") return true;
+      const candidate = issue as ReviewIssue;
+      const invalidComments = !Array.isArray(candidate.comments) || candidate.comments.some((comment) => !comment || typeof comment.id !== "string" || typeof comment.text !== "string" || typeof comment.author !== "string" || typeof comment.createdAt !== "string");
+      const invalidFields = typeof candidate.id !== "string" || typeof candidate.pageId !== "string" || !pageIds.has(candidate.pageId) || typeof candidate.title !== "string" || typeof candidate.description !== "string" || typeof candidate.author !== "string" || typeof candidate.createdAt !== "string" || !["Visual", "Accessibility", "Content", "Interaction"].includes(candidate.category) || !["High", "Medium", "Low"].includes(candidate.priority) || !["Open", "Resolved"].includes(candidate.status) || !Number.isFinite(candidate.x) || candidate.x < 0 || candidate.x > 100 || !Number.isFinite(candidate.y) || candidate.y < 0 || candidate.y > 100 || invalidComments || issueIds.has(candidate.id);
+      if (typeof candidate.id === "string") issueIds.add(candidate.id);
+      return invalidFields;
+    });
+    if (invalidIssue) {
+      throw new Error("A project in this backup has an invalid feedback entry.");
+    }
+    if (project.checklist.some((item: unknown) => !item || typeof item !== "object" || typeof (item as ChecklistItem).id !== "string" || typeof (item as ChecklistItem).label !== "string" || typeof (item as ChecklistItem).complete !== "boolean")) {
+      throw new Error("A project in this backup has an invalid checklist entry.");
+    }
+  }
+  return value as ReviewProject[];
 }
