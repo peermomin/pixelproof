@@ -3,15 +3,12 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { getDb } from "@/db";
 import { accounts, sessions, users, verifications } from "@/db/schema";
 
-let authInstance: ReturnType<typeof betterAuth> | undefined;
-
-export function getAuth() {
-  if (authInstance) return authInstance;
+function createAuth() {
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret || secret.length < 32) throw new Error("BETTER_AUTH_SECRET must be set to a random string of at least 32 characters.");
 
   const baseURL = process.env.BETTER_AUTH_URL;
-  authInstance = betterAuth({
+  return betterAuth({
     appName: "Pixelproof",
     baseURL,
     secret,
@@ -37,6 +34,11 @@ export function getAuth() {
       storeSessionInDatabase: true,
     },
   });
+}
 
+let authInstance: ReturnType<typeof createAuth> | undefined;
+
+export function getAuth() {
+  authInstance ??= createAuth();
   return authInstance;
 }
