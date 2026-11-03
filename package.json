@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "node --test tests/*.test.ts",
     "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
