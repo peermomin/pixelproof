@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root { color-scheme: dark; --bg: #0c0e12; --panel: #11141a; --line: #242832; --muted: #818896; --text: #e9ebef; --lime: #c4f36b; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; }
+button, input, select, textarea { font: inherit; }
+::selection { background: #c4f36b44; }
+.grid-bg { background-image: linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px); background-size: 34px 34px; }
+button, a, select { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid #c4f36b; outline-offset: 2px; }
+.form-input { display:block; width:100%; min-width:0; min-height:40px; border:1px solid #343944; border-radius:8px; background:#0e1015; padding:9px 11px; color:#e2e5eb; font-size:12px; outline:none; }
+.form-input::placeholder { color:#626975; }
+.form-input:focus { border-color:#9ac451; }
+.form-input option { background:#171a20; }
