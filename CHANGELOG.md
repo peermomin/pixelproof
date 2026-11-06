@@ -10,3 +10,5 @@ All notable changes will be recorded here. The repository is being initialized f
 - Configured screenshot persistence in PostgreSQL and migration locking for pooled database connections.
 - Modularized the review workspace UI into focused components under `src/components/`.
 - Added a Node.js test suite for review-domain and payload validation, wired into CI.
+- Added `GET /api/health` liveness probe, `SECURITY.md`, and `docs/ARCHITECTURE.md`.
+- Applied Dependabot updates for Actions, dotenv, drizzle-orm, @types/node, and ESLint.
