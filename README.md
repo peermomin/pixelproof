@@ -115,6 +115,10 @@ npm run db:migrate # apply pending SQL migrations
 - PostgreSQL for accounts, workspaces, projects, invites, and asset metadata
 - PostgreSQL `bytea` storage for uploaded screenshots
 
+## Architecture
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for module boundaries, request flow, the data model, and trust boundaries.
+
 ## Project structure
 
 ```text
@@ -128,3 +132,5 @@ tests/              Node.js test suite for domain and payload validation
 Dockerfile          Production container
 docker-compose.yml  App, PostgreSQL, health checks, and database volume
 ```
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and supported versions.
