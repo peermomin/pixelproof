@@ -128,3 +128,5 @@ tests/              Node.js test suite for domain and payload validation
 Dockerfile          Production container
 docker-compose.yml  App, PostgreSQL, health checks, and database volume
 ```
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and supported versions.
