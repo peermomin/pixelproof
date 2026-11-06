@@ -20,7 +20,7 @@ jobs:
       DATABASE_URL: postgresql://pixelproof:pixelproof@localhost:5432/pixelproof
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
